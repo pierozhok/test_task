@@ -1,0 +1,22 @@
+- name: Deploy binary
+  become: yes
+  hosts:
+	192.168.0.[01:n]
+  tasks:
+    - name: Local binary build
+      ansible.builtin.shell: "make" 
+      delegate_to: 127.0.0.1
+
+    - set_fact:
+        binary: "cpu-stats-exporter-x64"
+
+    - name: Copy binary
+      ansible.builtin.copy:
+	src: "./{{ binary }}"
+	dest: "/usr/local/bin/{{ binary }}"
+	owner: vm_user
+	group: vm_user
+	mode: "0755"
+
+    - name: Run binary
+      ansible.builtin.shell: "{{ binary }}"
